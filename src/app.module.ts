@@ -3,9 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
-import { PostModule } from './modules/post/post.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MessageModule } from './modules/message/message.module';
+import { CourseModule } from './modules/course/course.module';
 
 @Module({
   imports: [
@@ -26,16 +27,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
         ssl: process.env.NODE_ENV == 'production' ? true : false,
-        // extra: {
-        //   ssl: {
-        //     rejectUnauthorized: process.env.NODE_ENV === 'production',
-        //   },
-        // },
       }),
     }),
     UserModule,
-    PostModule,
     AuthModule,
+    MessageModule,
+    CourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
