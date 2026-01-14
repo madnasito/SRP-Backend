@@ -24,7 +24,7 @@ export class AuthService {
 
             const user = await this.userService.createUser(createUserDto);
 
-            const payload = { id: user.id };
+            const payload = { id: user.id, admin: user.admin };
             const token = await this.jwtService.signAsync(payload);
 
             return {
@@ -49,7 +49,7 @@ export class AuthService {
 
             if (!isMatch) throw new BadRequestException('INVALID_CREDENTIALS');
 
-            const payload = { id: user.id };
+            const payload = { id: user.id, admin: user.admin };
             const token = await this.jwtService.signAsync(payload);
 
             return {
