@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entity/course.entity';
 import { Repository } from 'typeorm';
@@ -20,8 +20,17 @@ export class CourseService {
         return this.courseRepository.save(course);
     }
 
-    createLesson(data: CreateLessonDto): Promise<Lesson> {
-        const lesson = this.lessonRepository.create(data);
+    async createLesson(data: CreateLessonDto): Promise<Lesson> {
+
+        const course = await this.courseRepository.findOne({ where: { id: data.course } });
+        
+        if(!course) {
+            throw new NotFoundException('Curso no encontrado');
+        }
+        const lesson = this.lessonRepository.create({
+            ...data,
+            course: { id: data.course }
+        });
         return this.lessonRepository.save(lesson);
     }
 

@@ -17,4 +17,7 @@ export class Course {
 
   @OneToMany(() => Lesson, (lesson) => lesson.course, { cascade: true })
   lessons: Lesson[];
+
+  @Column({default: true})
+  active: boolean;
 }

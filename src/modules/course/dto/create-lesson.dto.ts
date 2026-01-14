@@ -1,6 +1,10 @@
-import { IsNotEmpty, IsString, IsUrl } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, IsUrl } from "class-validator";
 
 export class CreateLessonDto {
+
+    @IsNotEmpty()
+    @IsInt()
+    course: number;
 
     @IsNotEmpty()
     @IsString()

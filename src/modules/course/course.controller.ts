@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -9,28 +9,28 @@ export class CourseController {
         private readonly courseService: CourseService,
     ) {}
 
-    @Post()
+    @Post('create-course')
     createCourse(@Body() data: CreateCourseDto) {
         return this.courseService.createCourse(data);
     }
 
-    @Post()
+    @Post('create-lesson')
     createLesson(@Body() data: CreateLessonDto) {
         return this.courseService.createLesson(data);
     }
 
-    @Get()
+    @Get('all-courses')
     findAllCourses() {
         return this.courseService.findAllCourses();
     }
 
-    @Get()
+    @Get('all-lessons')
     findAllLessons() {
         return this.courseService.findAllLessons();
     }
 
-    @Get()
-    findCourseWithLessons(@Param('id') id: number) {
+    @Get('with-lessons')
+    findCourseWithLessons(@Query('id') id: number) {
         return this.courseService.findCourseWithLessons(id);
     }
 }
