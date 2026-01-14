@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -22,18 +19,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DATABASE_HOST'),
-        port: 5432, // Puedes ponerlo fijo
+        port: configService.get<number>('DATABASE_PORT'), // Puedes ponerlo fijo
         username: configService.get<string>('DATABASE_USER'),
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
-        ssl: true,
-        extra: {
-          ssl: {
-            rejectUnauthorized: true,
-          },
-        },
+        ssl: process.env.NODE_ENV == 'production' ? true : false,
+        // extra: {
+        //   ssl: {
+        //     rejectUnauthorized: process.env.NODE_ENV === 'production',
+        //   },
+        // },
       }),
     }),
     UserModule,
