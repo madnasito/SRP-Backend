@@ -51,4 +51,15 @@ export class UserService {
     user.email = data.email;
     return this.userRepository.save(user);
   }
+
+  async updatePassword(id: number, password: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+        throw new NotFoundException('User not found');
+    }
+    const saltOrRounds = 10;
+    const hash = hashSync(password, saltOrRounds);
+    user.password = hash;
+    return this.userRepository.save(user);
+  }
 }
