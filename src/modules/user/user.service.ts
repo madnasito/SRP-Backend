@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashSync } from 'bcrypt';
+import { EditUserDto } from './dto/edit-user.dto';
 
 @Injectable()
 export class UserService {
@@ -39,5 +40,15 @@ export class UserService {
     } catch (error) {
         throw error;
     }
+  }
+
+  async editUser(data: EditUserDto, id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+        throw new NotFoundException('User not found');
+    }
+    user.name = data.name;
+    user.email = data.email;
+    return this.userRepository.save(user);
   }
 }
