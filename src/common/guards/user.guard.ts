@@ -31,7 +31,7 @@ export class UserGuard implements CanActivate {
                 secret,
             });
 
-            request['id'] = payload;
+            request['user'] = payload;
             
         } catch (error) {
             Logger.error(error);

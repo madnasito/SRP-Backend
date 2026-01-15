@@ -107,4 +107,34 @@ export class CourseService {
             totalLessons,
         };
     }
+
+    async getUserAllCoursesProgress(userId: number): Promise<any[]> {
+        // Get all progress entries for the user with lesson and course relations
+        const progressEntries = await this.progressRepository.find({
+            where: { user: { id: userId }, completed: true },
+            relations: ['lesson', 'lesson.course'],
+        });
+
+        // Extract unique course IDs
+        const courseIds = new Set<number>();
+        progressEntries.forEach(entry => {
+            if (entry.lesson && entry.lesson.course) {
+                courseIds.add(entry.lesson.course.id);
+            }
+        });
+
+        // Calculate progress for each course
+        const coursesProgress = await Promise.all(
+            Array.from(courseIds).map(async (courseId) => {
+                const progress = await this.getUserCourseProgress(userId, courseId);
+                const course = await this.courseRepository.findOne({ where: { id: courseId } });
+                return {
+                    course,
+                    ...progress,
+                };
+            })
+        );
+
+        return coursesProgress;
+    }
 }

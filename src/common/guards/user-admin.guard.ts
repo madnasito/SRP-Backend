@@ -26,9 +26,6 @@ export class UserAdminGuard implements CanActivate {
             throw new UnauthorizedException();
         }
 
-        Logger.log(`Token extracted: ${token}`);
-
-
         try {
             const secret = this.config.get<string>('JWT_SECRET');
             const payload = await this.jwtService.verifyAsync(token, {
@@ -41,7 +38,7 @@ export class UserAdminGuard implements CanActivate {
                 throw new UnauthorizedException();
             }
 
-            request['id'] = payload['id'];
+            request['user'] = payload;
             
         } catch (error) {
             Logger.error(error);

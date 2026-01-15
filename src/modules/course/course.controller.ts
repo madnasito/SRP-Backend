@@ -38,23 +38,29 @@ export class CourseController {
     }
 
     @UseGuards(UserGuard)
+    @Get('my-progress')
+    getUserAllCoursesProgress(@Req() req: any) {
+        const userId = req.user.id;
+        return this.courseService.getUserAllCoursesProgress(userId);
+    }
+
+    @UseGuards(UserGuard)
     @Post(':courseId/lessons/:lessonId/complete')
     completeLesson(
-        @Req() req,
-        @Param('courseId') courseId: number,
+        @Req() req: any,
         @Param('lessonId') lessonId: number
     ) {
-        const userId = req['id'].id;
+        const userId = req.user.id;
         return this.courseService.markLessonAsCompleted(userId, lessonId);
     }
 
     @UseGuards(UserGuard)
     @Get(':courseId/progress')
     getProgress(
-        @Req() req,
-        @Param('courseId') courseId: number
+        @Req() req: any,
+        @Param('course') courseId: number
     ) {
-        const userId = req['id'].id;
+        const userId = req.user.id;
         return this.courseService.getUserCourseProgress(userId, courseId);
     }
 }
