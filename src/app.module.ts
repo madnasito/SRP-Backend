@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MessageModule } from './modules/message/message.module';
 import { CourseModule } from './modules/course/course.module';
+import { ContactModule } from './modules/contact/contact.module';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { CourseModule } from './modules/course/course.module';
     }),
     UserModule,
     AuthModule,
-    MessageModule,
+    ContactModule,
     CourseModule,
   ],
   controllers: [AppController],

@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Message } from './entity/message.entity';
+import { ContactMessage } from './entity/contact-message.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class MessageService {
+export class ContactService {
 
     constructor(
-        @InjectRepository(Message)
-        private messageRepository: Repository<Message>
+        @InjectRepository(ContactMessage)
+        private messageRepository: Repository<ContactMessage>
     ) {}
 
     create(data: CreateMessageDto) {
