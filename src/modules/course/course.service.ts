@@ -6,6 +6,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { Lesson } from './entity/lesson.entity';
 import { UserLessonProgress } from './entity/user-lesson-progress.entity';
+import { EditCourseDto } from './dto/edit-course.dto';
 
 @Injectable()
 export class CourseService {
@@ -36,6 +37,22 @@ export class CourseService {
             course: { id: data.course }
         });
         return this.lessonRepository.save(lesson);
+    }
+
+    async editCourse(data: EditCourseDto): Promise<Course> {
+        const course = await this.courseRepository.findOne({ where: { id: data.id } });
+        if(!course) {
+            throw new NotFoundException('Curso no encontrado');
+        }
+        return this.courseRepository.save({ ...course, ...data });
+    }
+
+    deleteCourse(id: number) {
+        return this.courseRepository.delete(id);
+    }
+
+    deleteLesson(id: number) {
+        return this.lessonRepository.delete(id);
     }
 
     findCourseWithLessons(id: number) {

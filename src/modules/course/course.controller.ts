@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards, Req, Delete, Patch } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UserAdminGuard } from 'src/common/guards/user-admin.guard';
 import { UserGuard } from 'src/common/guards/user.guard';
+import { EditCourseDto } from './dto/edit-course.dto';
 
 @Controller('course')
 export class CourseController {
@@ -63,5 +64,23 @@ export class CourseController {
     ) {
         const userId = req.user.id;
         return this.courseService.getUserCourseProgress(userId, courseId);
+    }
+
+    @UseGuards(UserAdminGuard)
+    @Patch('edit-course')
+    editCourse(@Body() data: EditCourseDto) {
+        return this.courseService.editCourse(data);
+    }
+
+    @UseGuards(UserAdminGuard)
+    @Delete('lesson/:id')
+    deleteLesson(@Param('id') id: number) {
+        return this.courseService.deleteLesson(id);
+    }
+
+    @UseGuards(UserAdminGuard)
+    @Delete(':id')
+    deleteCourse(@Param('id') id: number) {
+        return this.courseService.deleteCourse(id);
     }
 }
