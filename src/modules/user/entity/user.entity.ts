@@ -14,7 +14,7 @@ export class User {
   @Column({ type: 'text' })
   password: string;
 
-  @Column({ default: false, type: 'boolean' })
+  @Column({ default: true, type: 'boolean' })
   admin: boolean;
 
   @Column({ default: true, type: 'boolean' })

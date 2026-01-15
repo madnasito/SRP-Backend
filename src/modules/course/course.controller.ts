@@ -17,6 +17,7 @@ export class CourseController {
         return this.courseService.createCourse(data);
     }
 
+    @UseGuards(UserAdminGuard)
     @Post('create-lesson')
     createLesson(@Body() data: CreateLessonDto) {
         return this.courseService.createLesson(data);
@@ -45,7 +46,7 @@ export class CourseController {
     }
 
     @UseGuards(UserGuard)
-    @Post(':courseId/lessons/:lessonId/complete')
+    @Get('complete-lesson/:courseId/:lessonId')
     completeLesson(
         @Req() req: any,
         @Param('lessonId') lessonId: number
