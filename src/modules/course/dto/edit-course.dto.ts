@@ -1,21 +1,18 @@
-import { IsInt, IsNotEmpty, IsString, IsUrl } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, IsOptional } from "class-validator";
+import { Type } from "class-transformer";
 
 export class EditCourseDto {
 
     @IsNotEmpty()
     @IsInt()
+    @Type(() => Number)
     id: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    title: string;
+    title?: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
-    description: string;
-
-    @IsNotEmpty()
-    @IsString()
-    @IsUrl()
-    imageUrl: string;
+    description?: string;
 }

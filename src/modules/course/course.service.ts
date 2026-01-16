@@ -19,8 +19,11 @@ export class CourseService {
         private readonly progressRepository: Repository<UserLessonProgress>,
     ) {}
 
-    createCourse(data: CreateCourseDto): Promise<Course> {
-        const course = this.courseRepository.create(data);
+    createCourse(data: CreateCourseDto, imageUrl?: string): Promise<Course> {
+        const course = this.courseRepository.create({
+            ...data,
+            imageUrl
+        });
         return this.courseRepository.save(course);
     }
 
@@ -39,12 +42,21 @@ export class CourseService {
         return this.lessonRepository.save(lesson);
     }
 
-    async editCourse(data: EditCourseDto): Promise<Course> {
-        const course = await this.courseRepository.findOne({ where: { id: data.id } });
+    async editCourse(data: EditCourseDto, imageUrl?: string): Promise<Course> {
+        const course = await this.courseRepository.findOne({ where: { id: Number(data.id) } });
         if(!course) {
             throw new NotFoundException('Curso no encontrado');
         }
-        return this.courseRepository.save({ ...course, ...data });
+        
+        // Actualizamos los campos manualmente o con Object.assign para asegurar que se use la instancia de la entidad
+        const { id, ...updateData } = data;
+        Object.assign(course, updateData);
+        
+        if (imageUrl !== undefined) {
+            course.imageUrl = imageUrl;
+        }
+
+        return this.courseRepository.save(course);
     }
 
     deleteCourse(id: number) {
