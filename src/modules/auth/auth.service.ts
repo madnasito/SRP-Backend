@@ -3,7 +3,6 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entity/user.entity';
 import { SignInDto } from './dto/sign-in.dto';
-import { compare } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -42,12 +41,12 @@ export class AuthService {
         try {
             const user = await this.userService.findByEmail(signInDto.email);
             if (!user) {
-                throw new ConflictException('Invalid credentials');
+                throw new ConflictException('Credenciales invalidas');
             }
             
-            const isMatch = await compare(signInDto.password, user.password);
+            const isMatch = signInDto.password === user.password;
 
-            if (!isMatch) throw new BadRequestException('INVALID_CREDENTIALS');
+            if (!isMatch) throw new BadRequestException('Credenciales invalidas');
 
             const payload = { id: user.id, admin: user.admin };
             const token = await this.jwtService.signAsync(payload);

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { hashSync } from 'bcrypt';
 import { EditUserDto } from './dto/edit-user.dto';
 
 @Injectable()
@@ -30,12 +29,6 @@ export class UserService {
     try {
         const newUser = this.userRepository.create(data);
     
-        const saltOrRounds = 10;
-        const password = data.password;
-        const hash = hashSync(password, saltOrRounds);
-    
-        newUser.password = hash as string;
-    
         return this.userRepository.save(newUser);
     } catch (error) {
         throw error;
@@ -57,9 +50,7 @@ export class UserService {
     if (!user) {
         throw new NotFoundException('User not found');
     }
-    const saltOrRounds = 10;
-    const hash = hashSync(password, saltOrRounds);
-    user.password = hash;
+    user.password = password;
     return this.userRepository.save(user);
   }
 }
