@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, BadGatewayException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import FormData from 'form-data';
@@ -31,9 +31,12 @@ export class CourseService {
                 throw new BadRequestException('NOT_VALID_EXTENSION');
             }
 
-            const form = new FormData();
             const apiKey = this.config.get<string>('IMGBB_KEY');
+            if (!apiKey) {
+                Logger.warn('IMGBB_KEY is not defined');
+            }
 
+            const form = new FormData();
             form.append('file', image.buffer, {
                 filename: image.originalname,
                 contentType: image.mimetype,
@@ -47,22 +50,27 @@ export class CourseService {
                 {
                     headers: {
                         ...form.getHeaders(),
-                        'Content-Type': 'multipart/form-data',
                     },
                 },
             );
 
             if (
-                resp.data.files.status === 'Success' ||
-                resp.data.files.status === 'Duplicate'
+                resp.data && 
+                resp.data.files && 
+                (resp.data.files.status === 'Success' || resp.data.files.status === 'Duplicate')
             ) {
                 return resp.data.files.url;
             }
 
-            throw new BadRequestException('BEEIMG_UPLOAD_FAILED');
+            Logger.error('Beeimg upload failed', resp.data);
+            throw new BadRequestException(resp.data?.files?.error || 'BEEIMG_UPLOAD_FAILED');
         } catch (error) {
-            Logger.error(error);
-            throw new BadGatewayException('BEEIMG_SERVER_ERROR');
+            Logger.error('Error uploading to Beeimg', error.message);
+            if (error.response) {
+                Logger.error('Error response data', error.response.data);
+            }
+            if (error instanceof BadRequestException) throw error;
+            throw new InternalServerErrorException('Error uploading image to external service');
         }
     }
 
