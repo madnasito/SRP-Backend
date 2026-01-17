@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException, BadGatewayException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import FormData from 'form-data';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entity/course.entity';
 import { Repository } from 'typeorm';
@@ -33,11 +34,10 @@ export class CourseService {
             const form = new FormData();
             const apiKey = this.config.get<string>('IMGBB_KEY');
 
-            form.append(
-                'file',
-                new Blob([new Uint8Array(image.buffer)], { type: image.mimetype }),
-                image.originalname,
-            );
+            form.append('file', image.buffer, {
+                filename: image.originalname,
+                contentType: image.mimetype,
+            });
 
             form.append('apikey', apiKey || '');
 
@@ -46,7 +46,7 @@ export class CourseService {
                 form,
                 {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
+                        ...form.getHeaders(),
                     },
                 },
             );
