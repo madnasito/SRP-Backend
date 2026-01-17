@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsString, IsOptional } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, IsOptional, IsUrl } from "class-validator";
 import { Type } from "class-transformer";
 
 export class EditCourseDto {
@@ -15,4 +15,9 @@ export class EditCourseDto {
     @IsOptional()
     @IsString()
     description?: string;
+
+    @IsOptional()
+    @IsString()
+    @IsUrl()
+    imageUrl?: string;
 }

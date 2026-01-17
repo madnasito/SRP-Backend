@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards, Req, Delete, Patch, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Body, Controller, Get, Param, Post, Query, UseGuards, Req, Delete, Patch } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -15,19 +14,8 @@ export class CourseController {
 
     @UseGuards(UserAdminGuard)
     @Post('create-course')
-    @UseInterceptors(FileInterceptor('image'))
-    createCourse(
-        @Body() data: CreateCourseDto,
-        @UploadedFile(
-            new ParseFilePipe({
-                validators: [
-                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }), // 2MB
-                ],
-                fileIsRequired: false
-            }),
-        ) file: Express.Multer.File
-    ) {
-        return this.courseService.createCourse(data, file);
+    createCourse(@Body() data: CreateCourseDto) {
+        return this.courseService.createCourse(data);
     }
 
     @UseGuards(UserAdminGuard)
@@ -80,19 +68,8 @@ export class CourseController {
 
     @UseGuards(UserAdminGuard)
     @Patch('edit-course')
-    @UseInterceptors(FileInterceptor('image'))
-    editCourse(
-        @Body() data: EditCourseDto,
-        @UploadedFile(
-            new ParseFilePipe({
-                validators: [
-                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }), // 2MB
-                ],
-                fileIsRequired: false
-            }),
-        ) file: Express.Multer.File
-    ) {
-        return this.courseService.editCourse(data, file);
+    editCourse(@Body() data: EditCourseDto) {
+        return this.courseService.editCourse(data);
     }
 
     @UseGuards(UserAdminGuard)

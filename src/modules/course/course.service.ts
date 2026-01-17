@@ -1,7 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
-import FormData from 'form-data';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entity/course.entity';
 import { Repository } from 'typeorm';
@@ -20,69 +17,10 @@ export class CourseService {
         private readonly lessonRepository: Repository<Lesson>,
         @InjectRepository(UserLessonProgress)
         private readonly progressRepository: Repository<UserLessonProgress>,
-        private readonly config: ConfigService,
     ) {}
 
-    async uploadToBeeimg(image: Express.Multer.File): Promise<string> {
-        try {
-            const validExtension = ['jpg', 'png', 'jpeg', 'webp', 'gif'];
-            const extension = image.mimetype.split('/')[1];
-            if (!validExtension.includes(extension)) {
-                throw new BadRequestException('NOT_VALID_EXTENSION');
-            }
-
-            const apiKey = this.config.get<string>('IMGBB_KEY');
-            if (!apiKey) {
-                Logger.warn('IMGBB_KEY is not defined');
-            }
-
-            const form = new FormData();
-            form.append('file', image.buffer, {
-                filename: image.originalname,
-                contentType: image.mimetype,
-            });
-
-            form.append('apikey', apiKey || '');
-
-            const resp = await axios.post(
-                'https://beeimg.com/api/upload/file/json/',
-                form,
-                {
-                    headers: {
-                        ...form.getHeaders(),
-                    },
-                },
-            );
-
-            if (
-                resp.data && 
-                resp.data.files && 
-                (resp.data.files.status === 'Success' || resp.data.files.status === 'Duplicate')
-            ) {
-                return resp.data.files.url;
-            }
-
-            Logger.error('Beeimg upload failed', resp.data);
-            throw new BadRequestException(resp.data?.files?.error || 'BEEIMG_UPLOAD_FAILED');
-        } catch (error) {
-            Logger.error('Error uploading to Beeimg', error.message);
-            if (error.response) {
-                Logger.error('Error response data', error.response.data);
-            }
-            if (error instanceof BadRequestException) throw error;
-            throw new InternalServerErrorException('Error uploading image to external service');
-        }
-    }
-
-    async createCourse(data: CreateCourseDto, file?: Express.Multer.File): Promise<Course> {
-        let imageUrl: string | undefined = undefined;
-        if (file) {
-            imageUrl = await this.uploadToBeeimg(file);
-        }
-        const course = this.courseRepository.create({
-            ...data,
-            imageUrl
-        });
+    createCourse(data: CreateCourseDto): Promise<Course> {
+        const course = this.courseRepository.create(data);
         return this.courseRepository.save(course);
     }
 
@@ -101,18 +39,13 @@ export class CourseService {
         return this.lessonRepository.save(lesson);
     }
 
-    async editCourse(data: EditCourseDto, file?: Express.Multer.File): Promise<Course> {
+    async editCourse(data: EditCourseDto): Promise<Course> {
         const course = await this.courseRepository.findOne({ where: { id: Number(data.id) } });
         if(!course) {
             throw new NotFoundException('Curso no encontrado');
         }
         
-        const { id, ...updateData } = data;
-        Object.assign(course, updateData);
-        
-        if (file) {
-            course.imageUrl = await this.uploadToBeeimg(file);
-        }
+        Object.assign(course, data);
 
         return this.courseRepository.save(course);
     }
