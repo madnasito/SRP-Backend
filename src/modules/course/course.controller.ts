@@ -1,7 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards, Req, Delete, Patch, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards, Req, Delete, Patch, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -17,20 +15,19 @@ export class CourseController {
 
     @UseGuards(UserAdminGuard)
     @Post('create-course')
-    @UseInterceptors(FileInterceptor('image', {
-        storage: diskStorage({
-            destination: './uploads/courses',
-            filename: (req, file, cb) => {
-                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-                cb(null, `${randomName}${extname(file.originalname)}`);
-            }
-        })
-    }))
+    @UseInterceptors(FileInterceptor('image'))
     createCourse(
         @Body() data: CreateCourseDto,
-        @UploadedFile() file: Express.Multer.File
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }), // 2MB
+                ],
+                fileIsRequired: false
+            }),
+        ) file: Express.Multer.File
     ) {
-        return this.courseService.createCourse(data, file ? `/uploads/courses/${file.filename}` : undefined);
+        return this.courseService.createCourse(data, file);
     }
 
     @UseGuards(UserAdminGuard)
@@ -83,20 +80,19 @@ export class CourseController {
 
     @UseGuards(UserAdminGuard)
     @Patch('edit-course')
-    @UseInterceptors(FileInterceptor('image', {
-        storage: diskStorage({
-            destination: './uploads/courses',
-            filename: (req, file, cb) => {
-                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-                cb(null, `${randomName}${extname(file.originalname)}`);
-            }
-        })
-    }))
+    @UseInterceptors(FileInterceptor('image'))
     editCourse(
         @Body() data: EditCourseDto,
-        @UploadedFile() file: Express.Multer.File
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2 }), // 2MB
+                ],
+                fileIsRequired: false
+            }),
+        ) file: Express.Multer.File
     ) {
-        return this.courseService.editCourse(data, file ? `/uploads/courses/${file.filename}` : undefined);
+        return this.courseService.editCourse(data, file);
     }
 
     @UseGuards(UserAdminGuard)

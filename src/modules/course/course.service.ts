@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, BadGatewayException, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Course } from './entity/course.entity';
 import { Repository } from 'typeorm';
@@ -17,9 +19,57 @@ export class CourseService {
         private readonly lessonRepository: Repository<Lesson>,
         @InjectRepository(UserLessonProgress)
         private readonly progressRepository: Repository<UserLessonProgress>,
+        private readonly config: ConfigService,
     ) {}
 
-    createCourse(data: CreateCourseDto, imageUrl?: string): Promise<Course> {
+    async uploadToBeeimg(image: Express.Multer.File): Promise<string> {
+        try {
+            const validExtension = ['jpg', 'png', 'jpeg', 'webp', 'gif'];
+            const extension = image.mimetype.split('/')[1];
+            if (!validExtension.includes(extension)) {
+                throw new BadRequestException('NOT_VALID_EXTENSION');
+            }
+
+            const form = new FormData();
+            const apiKey = this.config.get<string>('IMGBB_KEY');
+
+            form.append(
+                'file',
+                new Blob([new Uint8Array(image.buffer)], { type: image.mimetype }),
+                image.originalname,
+            );
+
+            form.append('apikey', apiKey || '');
+
+            const resp = await axios.post(
+                'https://beeimg.com/api/upload/file/json/',
+                form,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                },
+            );
+
+            if (
+                resp.data.files.status === 'Success' ||
+                resp.data.files.status === 'Duplicate'
+            ) {
+                return resp.data.files.url;
+            }
+
+            throw new BadRequestException('BEEIMG_UPLOAD_FAILED');
+        } catch (error) {
+            Logger.error(error);
+            throw new BadGatewayException('BEEIMG_SERVER_ERROR');
+        }
+    }
+
+    async createCourse(data: CreateCourseDto, file?: Express.Multer.File): Promise<Course> {
+        let imageUrl: string | undefined = undefined;
+        if (file) {
+            imageUrl = await this.uploadToBeeimg(file);
+        }
         const course = this.courseRepository.create({
             ...data,
             imageUrl
@@ -42,18 +92,17 @@ export class CourseService {
         return this.lessonRepository.save(lesson);
     }
 
-    async editCourse(data: EditCourseDto, imageUrl?: string): Promise<Course> {
+    async editCourse(data: EditCourseDto, file?: Express.Multer.File): Promise<Course> {
         const course = await this.courseRepository.findOne({ where: { id: Number(data.id) } });
         if(!course) {
             throw new NotFoundException('Curso no encontrado');
         }
         
-        // Actualizamos los campos manualmente o con Object.assign para asegurar que se use la instancia de la entidad
         const { id, ...updateData } = data;
         Object.assign(course, updateData);
         
-        if (imageUrl !== undefined) {
-            course.imageUrl = imageUrl;
+        if (file) {
+            course.imageUrl = await this.uploadToBeeimg(file);
         }
 
         return this.courseRepository.save(course);
