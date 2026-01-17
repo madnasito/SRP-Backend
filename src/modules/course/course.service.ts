@@ -47,6 +47,7 @@ export class CourseService {
                 {
                     headers: {
                         ...form.getHeaders(),
+                        'Content-Type': 'multipart/form-data',
                     },
                 },
             );
