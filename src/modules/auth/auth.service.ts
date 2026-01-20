@@ -48,6 +48,8 @@ export class AuthService {
 
             if (!isMatch) throw new BadRequestException('Credenciales invalidas');
 
+            if(!user.active) throw new BadRequestException('Usuario desactivado');
+
             const payload = { id: user.id, admin: user.admin };
             const token = await this.jwtService.signAsync(payload);
 
