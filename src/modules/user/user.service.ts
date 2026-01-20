@@ -10,7 +10,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   findAll(): Promise<User[]> {
     return this.userRepository.find();
@@ -27,18 +27,18 @@ export class UserService {
   async createUser(data: CreateUserDto): Promise<User> {
 
     try {
-        const newUser = this.userRepository.create(data);
-    
-        return this.userRepository.save(newUser);
+      const newUser = this.userRepository.create(data);
+
+      return this.userRepository.save(newUser);
     } catch (error) {
-        throw error;
+      throw error;
     }
   }
 
   async editUser(data: EditUserDto, id: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-        throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found');
     }
     user.name = data.name;
     user.email = data.email;
@@ -48,9 +48,27 @@ export class UserService {
   async updatePassword(id: number, password: string): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-        throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found');
     }
     user.password = password;
+    return this.userRepository.save(user);
+  }
+
+  async deactivateUser(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.active = false;
+    return this.userRepository.save(user);
+  }
+
+  async activateUser(id: number): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.active = true;
     return this.userRepository.save(user);
   }
 }

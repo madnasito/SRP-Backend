@@ -67,6 +67,12 @@ export class CourseController {
     }
 
     @UseGuards(UserAdminGuard)
+    @Get('user-progress')
+    getUserAllCoursesProgressAdmin(@Query('id') id: string) {
+        return this.courseService.getUserAllCoursesProgress(parseInt(id));
+    }
+
+    @UseGuards(UserAdminGuard)
     @Patch('edit-course')
     editCourse(@Body() data: EditCourseDto) {
         return this.courseService.editCourse(data);
