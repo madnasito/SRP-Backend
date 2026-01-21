@@ -185,4 +185,10 @@ export class CourseService {
 
     return coursesProgress;
   }
+
+  findCoursesByCategory(categoryId: number): Promise<Course[]> {
+    return this.courseRepository.find({
+      where: { category: { id: categoryId } },
+    });
+  }
 }

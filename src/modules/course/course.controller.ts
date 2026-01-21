@@ -43,6 +43,11 @@ export class CourseController {
     return this.courseService.findAllLessons();
   }
 
+  @Get('by-category/:id')
+  getCoursesByCategory(@Param('id') id: string) {
+    return this.courseService.findCoursesByCategory(+id);
+  }
+
   @Get('with-lessons')
   findCourseWithLessons(@Query('id') id: number) {
     return this.courseService.findCourseWithLessons(id);
