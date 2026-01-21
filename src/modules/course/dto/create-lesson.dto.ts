@@ -1,19 +1,18 @@
-import { IsInt, IsNotEmpty, IsString, IsUrl } from "class-validator";
+import { IsInt, IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
 export class CreateLessonDto {
+  @IsNotEmpty()
+  @IsInt()
+  course: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    course: number;
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsNotEmpty()
-    @IsString()
-    title: string;
+  @IsString()
+  content: string;
 
-    @IsString()
-    content: string;
-
-    @IsNotEmpty()
-    @IsUrl()
-    videoUrl: string;
+  @IsNotEmpty()
+  @IsUrl()
+  videoUrl: string;
 }

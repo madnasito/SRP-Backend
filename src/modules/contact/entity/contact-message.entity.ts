@@ -1,16 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class ContactMessage {
-    @PrimaryGeneratedColumn()
-    id: number;
-    
-    @Column()
-    content: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    email: string;
+  @Column()
+  content: string;
 
-    @Column({ default: () => 'CURRENT_TIMESTAMP' })
-    date: Date;
+  @Column()
+  email: string;
+
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  date: Date;
 }

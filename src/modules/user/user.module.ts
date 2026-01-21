@@ -17,7 +17,8 @@ import { ConfigService } from '@nestjs/config';
         };
       },
     }),
-    TypeOrmModule.forFeature([User])],
+    TypeOrmModule.forFeature([User]),
+  ],
   providers: [UserService],
   controllers: [UserController],
   exports: [UserService],

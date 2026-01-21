@@ -6,22 +6,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ContactService {
+  constructor(
+    @InjectRepository(ContactMessage)
+    private messageRepository: Repository<ContactMessage>,
+  ) {}
 
-    constructor(
-        @InjectRepository(ContactMessage)
-        private messageRepository: Repository<ContactMessage>
-    ) {}
+  create(data: CreateMessageDto) {
+    const message = this.messageRepository.create(data);
+    return this.messageRepository.save(message);
+  }
 
-    create(data: CreateMessageDto) {
-        const message = this.messageRepository.create(data);
-        return this.messageRepository.save(message);
-    }
+  findAll() {
+    return this.messageRepository.find();
+  }
 
-    findAll() {
-        return this.messageRepository.find();
-    }
-
-    findByEmail(email: string) {
-        return this.messageRepository.find({ where: { email } });
-    }
+  findByEmail(email: string) {
+    return this.messageRepository.find({ where: { email } });
+  }
 }

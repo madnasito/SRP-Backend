@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Patch, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserAdminGuard } from 'src/common/guards/user-admin.guard';
 import { UserService } from './user.service';
 import { UserGuard } from 'src/common/guards/user.guard';
@@ -8,7 +17,7 @@ import { AdminUpdatePasswordDto } from './dto/admin-update-password.dto';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('all')
   getAllUsers() {
@@ -38,7 +47,6 @@ export class UserController {
   deactivateUser(@Query('id') id: string) {
     return this.userService.deactivateUser(parseInt(id));
   }
-
 
   @UseGuards(UserAdminGuard)
   @Delete('activate')

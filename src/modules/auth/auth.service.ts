@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entity/user.entity';
@@ -7,59 +11,58 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private readonly userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
-    constructor(
-        private readonly userService: UserService,
-        private jwtService: JwtService,
-    ) { }
+  async signUp(
+    createUserDto: CreateUserDto,
+  ): Promise<{ user: User; token: string }> {
+    try {
+      const existingUser = await this.userService.findByEmail(
+        createUserDto.email,
+      );
+      if (existingUser) {
+        throw new ConflictException('User with this email already exists');
+      }
 
-    async signUp(createUserDto: CreateUserDto): Promise<{ user: User; token: string }> {
+      const user = await this.userService.createUser(createUserDto);
 
-        try {
-            const existingUser = await this.userService.findByEmail(createUserDto.email);
-            if (existingUser) {
-                throw new ConflictException('User with this email already exists');
-            }
+      const payload = { id: user.id, admin: user.admin };
+      const token = await this.jwtService.signAsync(payload);
 
-            const user = await this.userService.createUser(createUserDto);
-
-            const payload = { id: user.id, admin: user.admin };
-            const token = await this.jwtService.signAsync(payload);
-
-            return {
-                user,
-                token,
-            };    
-        } catch (error) {
-            throw error;
-        }
-
+      return {
+        user,
+        token,
+      };
+    } catch (error) {
+      throw error;
     }
+  }
 
-    async signIn(signInDto: SignInDto): Promise<{ user: User; token: string }> {
+  async signIn(signInDto: SignInDto): Promise<{ user: User; token: string }> {
+    try {
+      const user = await this.userService.findByEmail(signInDto.email);
+      if (!user) {
+        throw new ConflictException('Credenciales invalidas');
+      }
 
-        try {
-            const user = await this.userService.findByEmail(signInDto.email);
-            if (!user) {
-                throw new ConflictException('Credenciales invalidas');
-            }
-            
-            const isMatch = signInDto.password === user.password;
+      const isMatch = signInDto.password === user.password;
 
-            if (!isMatch) throw new BadRequestException('Credenciales invalidas');
+      if (!isMatch) throw new BadRequestException('Credenciales invalidas');
 
-            if(!user.active) throw new BadRequestException('Usuario desactivado');
+      if (!user.active) throw new BadRequestException('Usuario desactivado');
 
-            const payload = { id: user.id, admin: user.admin };
-            const token = await this.jwtService.signAsync(payload);
+      const payload = { id: user.id, admin: user.admin };
+      const token = await this.jwtService.signAsync(payload);
 
-            return {
-                user,
-                token,
-            };    
-        } catch (error) {
-            throw error;
-        }
-        
+      return {
+        user,
+        token,
+      };
+    } catch (error) {
+      throw error;
     }
+  }
 }

@@ -15,6 +15,9 @@ export class Lesson {
   @Column({ type: 'varchar', length: 255, nullable: true })
   videoUrl: string;
 
-  @ManyToOne(() => Course, (course) => course.lessons, { onDelete: 'CASCADE', nullable: false })
+  @ManyToOne(() => Course, (course) => course.lessons, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
   course: Course;
 }

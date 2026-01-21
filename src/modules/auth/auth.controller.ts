@@ -11,12 +11,16 @@ export class AuthController {
 
   @UseGuards(UserAdminGuard)
   @Post('sign-up')
-  async signUp(@Body() body: CreateUserDto): Promise<{ user: User; token: string }> {
+  async signUp(
+    @Body() body: CreateUserDto,
+  ): Promise<{ user: User; token: string }> {
     return await this.authService.signUp(body);
   }
 
   @Post('sign-in')
-  async signin(@Body() body: SignInDto): Promise<{ user: User; token: string }> {
+  async signin(
+    @Body() body: SignInDto,
+  ): Promise<{ user: User; token: string }> {
     return await this.authService.signIn(body);
   }
 }
