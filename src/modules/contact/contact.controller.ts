@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { ContactService } from './contact.service';
 
@@ -12,8 +12,11 @@ export class ContactController {
   }
 
   @Get('messages')
-  findAllMessages() {
-    return this.contactService.findAll();
+  findAllMessages(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
+  ) {
+    return this.contactService.findAll(page, limit);
   }
 
   @Get('messages/:email')

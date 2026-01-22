@@ -16,8 +16,22 @@ export class ContactService {
     return this.messageRepository.save(message);
   }
 
-  findAll() {
-    return this.messageRepository.find();
+  async findAll(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await this.messageRepository.findAndCount({
+      skip,
+      take: limit,
+      order: { id: 'DESC' } as any,
+    });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   findByEmail(email: string) {
